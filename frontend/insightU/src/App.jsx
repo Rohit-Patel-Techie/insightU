@@ -7,6 +7,7 @@ import RegisterPage from "@/pages/RegisterPage"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
 import ResetPasswordPage from "@/pages/ResetPasswordPage"
 import DashboardPage from "@/pages/DashboardPage"
+import ProfilePage from "@/pages/ProfilePage"
 
 function RootRedirect() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -36,6 +37,13 @@ export default function App() {
           <ProtectedRoute>
             <DashboardPage />
           </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+            <ProfilePage />
         }
       />
 
