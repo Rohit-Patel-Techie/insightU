@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  RotateCcw,
+  LoaderCircle,
   Save,
   Sparkles,
 } from "lucide-react";
@@ -24,6 +25,10 @@ import {
 } from "@/components/check-in/CheckInSections";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { buildCheckInPayload, useDailyCheckIn } from "@/hooks/useDailyCheckIn";
+import {
+  createDailyCheckIn,
+  getCheckInErrorMessage,
+} from "@/services/checkin-api";
 
 function firstIncompleteStep(form) {
   if (!form.studyCompletion || !form.focusLevel) return 1;
@@ -43,12 +48,14 @@ export default function DailyCheckInPage({ user }) {
     validateStep,
     validateAll,
     saveDraft,
-    clearDraft,
+    removeDraft,
     draftNotice,
   } = checkIn;
   const [currentStep, setCurrentStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
-  const [submissionPayload, setSubmissionPayload] = useState(null);
+  const [savedCheckIn, setSavedCheckIn] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const completedSteps = useMemo(() => {
     const completed = new Set();
@@ -76,23 +83,28 @@ export default function DailyCheckInPage({ user }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const submitCheckIn = (event) => {
+  const submitCheckIn = async (event) => {
     event?.preventDefault();
+    setSubmitError("");
     if (!validateAll()) {
       setCurrentStep(firstIncompleteStep(form));
       return;
     }
-    setSubmissionPayload(buildCheckInPayload(form));
-    setSubmitted(true);
-    setCurrentStep(6);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
-  const resetForm = () => {
-    clearDraft();
-    setSubmitted(false);
-    setSubmissionPayload(null);
-    setCurrentStep(1);
+    setIsSubmitting(true);
+    try {
+      const checkInRecord = await createDailyCheckIn(buildCheckInPayload(form));
+      setSavedCheckIn(checkInRecord);
+      setSubmitted(true);
+      removeDraft();
+      setCurrentStep(6);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setSubmitError(getCheckInErrorMessage(error));
+      setCurrentStep(6);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const sectionProps = { form, errors, setField, toggleListValue };
@@ -134,15 +146,26 @@ export default function DailyCheckInPage({ user }) {
               )}
               <div className="flex items-center justify-between gap-3 px-1">
                 <DraftNotice notice={draftNotice} />
-                <button
-                  type="button"
-                  onClick={saveDraft}
-                  className="ml-auto inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-bold text-indigo-600 hover:bg-indigo-50 hover:text-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-400/10"
-                >
-                  <Save className="mr-1 inline size-3.5" />
-                  Save draft
-                </button>
+                {!submitted && (
+                  <button
+                    type="button"
+                    onClick={saveDraft}
+                    className="ml-auto inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-bold text-indigo-600 hover:bg-indigo-50 hover:text-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-400/10"
+                  >
+                    <Save className="mr-1 inline size-3.5" />
+                    Save draft
+                  </button>
+                )}
               </div>
+              {submitError && (
+                <p
+                  role="alert"
+                  className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700 dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300"
+                >
+                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                  {submitError}
+                </p>
+              )}
             </div>
 
             <div className="hidden xl:block">
@@ -167,48 +190,62 @@ export default function DailyCheckInPage({ user }) {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={saveDraft}>
-                      <Save className="size-4" />
-                      Save Draft
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={goBack}
-                      disabled={currentStep === 1}
-                    >
-                      <ArrowLeft className="size-4" />
-                      Back
-                    </Button>
+                    {!submitted && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={saveDraft}
+                        disabled={isSubmitting}
+                      >
+                        <Save className="size-4" />
+                        Save Draft
+                      </Button>
+                    )}
+                    {!submitted && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={goBack}
+                        disabled={currentStep === 1 || isSubmitting}
+                      >
+                        <ArrowLeft className="size-4" />
+                        Back
+                      </Button>
+                    )}
                     {currentStep < 6 ? (
                       <Button type="button" onClick={goNext}>
                         Next Step
                         <ArrowRight className="size-4" />
                       </Button>
                     ) : (
-                      <>
-                        <Button
-                          type="button"
-                          onClick={submitCheckIn}
-                          disabled={submitted}
-                        >
+                      <Button
+                        type="button"
+                        onClick={submitCheckIn}
+                        disabled={submitted || isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <LoaderCircle className="size-4 animate-spin" />
+                        ) : (
                           <CheckCircle2 className="size-4" />
-                          {submitted ? "Validated" : "Submit Check-in"}
-                        </Button>
-                        {submitted && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={resetForm}
-                          >
-                            <RotateCcw className="size-4" />
-                            Start Over
-                          </Button>
                         )}
-                      </>
+                        {submitted
+                          ? "Saved to Database"
+                          : isSubmitting
+                            ? "Saving..."
+                            : "Submit Check-in"}
+                      </Button>
                     )}
                   </div>
                 </div>
+                {submitError && (
+                  <p
+                    role="alert"
+                    className="mt-3 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700 dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300"
+                  >
+                    <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                    {submitError}
+                  </p>
+                )}
 
                 <div className="mt-5 flex items-center gap-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-5 text-white">
                   <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/15">
@@ -236,7 +273,7 @@ export default function DailyCheckInPage({ user }) {
                 size="icon"
                 className="size-11"
                 onClick={goBack}
-                disabled={currentStep === 1}
+                disabled={currentStep === 1 || isSubmitting || submitted}
                 aria-label="Previous step"
               >
                 <ArrowLeft className="size-4" />
@@ -250,29 +287,26 @@ export default function DailyCheckInPage({ user }) {
                   type="button"
                   className="h-11 flex-1"
                   onClick={submitCheckIn}
+                  disabled={submitted || isSubmitting}
                 >
-                  {submitted ? "Validated" : "Submit Check-in"}
-                  <CheckCircle2 className="size-4" />
-                </Button>
-              )}
-              {submitted && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-11"
-                  onClick={resetForm}
-                  aria-label="Start over"
-                >
-                  <RotateCcw className="size-4" />
+                  {isSubmitting ? (
+                    <LoaderCircle className="size-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="size-4" />
+                  )}
+                  {submitted
+                    ? "Saved"
+                    : isSubmitting
+                      ? "Saving..."
+                      : "Submit Check-in"}
                 </Button>
               )}
             </div>
           </div>
 
-          {submissionPayload && (
+          {savedCheckIn && (
             <span className="sr-only" aria-live="polite">
-              Check-in payload prepared for future API integration.
+              Check-in saved to the database.
             </span>
           )}
         </div>

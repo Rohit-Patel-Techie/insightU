@@ -33,14 +33,13 @@ function readDraft(storageKey) {
 
 export function buildCheckInPayload(form) {
   return {
-    check_in_date: localDateKey(),
     study_hours: Number(form.studyHours),
     planned_study_status: form.studyCompletion,
     focus_level: form.focusLevel,
     mood: form.mood,
     day_type: form.dayType,
     distractions: form.distractions,
-    distraction_time: form.distractions.includes("nothing") ? null : form.distractionTime,
+    distraction_time: form.distractions.includes("nothing") ? "" : form.distractionTime,
     habits_completed: form.habits,
     reflection_went_well: form.wentWell.trim(),
     reflection_improve_tomorrow: form.improveTomorrow.trim(),
@@ -100,6 +99,12 @@ export function useDailyCheckIn() {
     }
   }
 
+
+  const removeDraft = () => {
+    try { localStorage.removeItem(storageKey) } catch { /* The database save still succeeded. */ }
+    setDraftNotice(null)
+  }
+
   const clearDraft = () => {
     try { localStorage.removeItem(storageKey) } catch { /* Reset the in-memory form even when storage is blocked. */ }
     setForm(emptyCheckIn)
@@ -107,5 +112,5 @@ export function useDailyCheckIn() {
     setDraftNotice(null)
   }
 
-  return { form, errors, setField, toggleListValue, validateStep, validateAll, saveDraft, clearDraft, draftNotice }
+  return { form, errors, setField, toggleListValue, validateStep, validateAll, saveDraft, removeDraft, clearDraft, draftNotice }
 }
