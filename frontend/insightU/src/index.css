@@ -78,7 +78,127 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.dashboard-grid {
+  box-sizing: border-box;
+  font-family: "Aptos", "Segoe UI Variable", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(99, 102, 241, 0.08) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+
+.dashboard-grid *,
+.dashboard-grid *::before,
+.dashboard-grid *::after {
+  box-sizing: border-box;
+}
+
+.dashboard-grid button,
+.dashboard-grid input,
+.dashboard-grid select {
+  font: inherit;
+}
+
+.dashboard-grid button,
+.dashboard-grid a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-display {
+  font-family: "Aptos Display", "Segoe UI Variable Display", sans-serif;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.dark .dashboard-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 0
+  );
+}
+
+.dashboard-enter {
+  animation: dashboard-enter 550ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.dashboard-enter-delay-1 {
+  animation-delay: 70ms;
+}
+
+.dashboard-enter-delay-2 {
+  animation-delay: 140ms;
+}
+
+.dashboard-enter-delay-3 {
+  animation-delay: 210ms;
+}
+
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-grid,
+  .dashboard-grid *,
+  .dashboard-grid *::before,
+  .dashboard-grid *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+.checkin-range {
+  height: 6px;
+  appearance: none;
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+  cursor: pointer;
+}
+
+.checkin-range::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  appearance: none;
+  border: 4px solid #ffffff;
+  border-radius: 999px;
+  background: #6366f1;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.35);
+}
+
+.checkin-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 4px solid #ffffff;
+  border-radius: 999px;
+  background: #6366f1;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.35);
 }

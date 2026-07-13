@@ -1,20 +1,21 @@
-import { Navigate, Route, Routes } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom";
 
-import { useAuth } from "@/context/AuthContext"
-import { ProtectedRoute } from "@/components/ProtectedRoute"
-import LoginPage from "@/pages/LoginPage"
-import RegisterPage from "@/pages/RegisterPage"
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
-import ResetPasswordPage from "@/pages/ResetPasswordPage"
-import DashboardPage from "@/pages/DashboardPage"
-import ProfilePage from "@/pages/ProfilePage"
+import { useAuth } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import DashboardPage from "@/pages/DashboardPage";
+import ProfilePage from "@/pages/ProfilePage";
+import DailyCheckInRoute from "@/pages/DailyCheckInRoute";
 
 function RootRedirect() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return null
+  if (isLoading) return null;
 
-  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+  return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
 }
 
 export default function App() {
@@ -35,19 +36,22 @@ export default function App() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+          <DashboardPage />
           </ProtectedRoute>
         }
       />
 
-      <Route
-        path="/profile"
-        element={
-            <ProfilePage />
-        }
-      />
+      <Route path="/profile" element={<ProfilePage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/check-in"
+        element={
+          <ProtectedRoute>
+            <DailyCheckInRoute />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
-  )
+  );
 }
