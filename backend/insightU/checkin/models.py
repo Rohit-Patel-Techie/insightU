@@ -5,6 +5,15 @@ from django.utils import timezone
 
 
 class DailyCheckIn(models.Model):
+    class StudyCategory(models.TextChoices):
+        PROGRAMMING = "programming", "Programming"
+        ACADEMICS = "academics", "Academics"
+        EXAM_PREP = "exam_prep", "Exam Preparation"
+        PROJECT = "project", "Project"
+        CAREER = "career", "Career"
+        READING = "reading", "Reading"
+        OTHER = "other", "Other"
+
     class StudyCompletion(models.TextChoices):
         COMPLETE = "complete", "Yes, completely"
         PARTIAL = "partial", "Partially"
@@ -43,6 +52,7 @@ class DailyCheckIn(models.Model):
         related_name="daily_checkins",
     )
     check_in_date = models.DateField(default=timezone.localdate, editable=False)
+    study_category = models.CharField(max_length=20, choices=StudyCategory.choices, default="other")
     study_hours = models.DecimalField(
         max_digits=3,
         decimal_places=1,

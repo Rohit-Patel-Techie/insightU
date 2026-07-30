@@ -13,9 +13,9 @@ import {
   distractionOptions,
   distractionTimeOptions,
   focusOptions,
-  habitOptions,
   moodOptions,
   optionLabel,
+  studyCategoryOptions,
   studyCompletionOptions,
 } from "@/data/check-in-data";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,16 @@ export function StudyProgressSection({ form, errors, setField, className }) {
       emoji="📚"
       className={className}
     >
+      <Question label="What was the main category of your study?">
+        <OptionGrid
+          options={studyCategoryOptions}
+          value={form.studyCategory}
+          onChange={(value) => setField("studyCategory", value)}
+          columns={4}
+          ariaLabel="Study category"
+        />
+        <FieldError message={errors.studyCategory} />
+      </Question>
       <Question label="How many hours did you study today?">
         <div className="rounded-2xl bg-slate-50 p-4 dark:bg-white/[0.035]">
           <div className="flex items-end justify-between gap-3">
@@ -168,7 +178,12 @@ export function DistractionsSection({
   );
 }
 
-export function HabitsSection({ form, toggleListValue, className }) {
+export function HabitsSection({
+  form,
+  toggleListValue,
+  availableHabits = [],
+  className,
+}) {
   return (
     <CheckInCard
       step={4}
@@ -177,11 +192,18 @@ export function HabitsSection({ form, toggleListValue, className }) {
       emoji="🌱"
       className={className}
     >
-      <HabitGrid
-        options={habitOptions}
-        selectedValues={form.habits}
-        onToggle={(value) => toggleListValue("habits", value)}
-      />
+      {availableHabits.length ? (
+        <HabitGrid
+          options={availableHabits}
+          selectedValues={form.habits}
+          onToggle={(value) => toggleListValue("habits", value)}
+        />
+      ) : (
+        <div className="rounded-xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-500 dark:border-white/10">
+          No active habits are configured. You can continue and add habits later
+          from the Habits page.
+        </div>
+      )}
       <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3 dark:border-emerald-400/10 dark:bg-emerald-400/[0.07]">
         <span className="text-xl">🌿</span>
         <p className="text-xs font-semibold leading-5 text-emerald-800 dark:text-emerald-300">
@@ -238,18 +260,29 @@ export function ReflectionSection({ form, setField, className }) {
   );
 }
 
-export function SummarySection({ form, user, submitted, className }) {
+export function SummarySection({
+  form,
+  user,
+  submitted,
+  availableHabits = [],
+  className,
+}) {
   const summary = [
     [
       "Study Hours",
       `${form.studyHours === 8 ? "8+" : Number(form.studyHours).toFixed(1)} hrs`,
       "⏱️",
     ],
+    [
+      "Study Category",
+      optionLabel(studyCategoryOptions, form.studyCategory),
+      "📚",
+    ],
     ["Focus Level", optionLabel(focusOptions, form.focusLevel), "🎯"],
     ["Mood", optionLabel(moodOptions, form.mood), "😊"],
     [
       "Habits Completed",
-      `${form.habits.length} / ${habitOptions.length}`,
+      `${form.habits.length} / ${availableHabits.length}`,
       "🌱",
     ],
     [
@@ -312,7 +345,7 @@ export function SummarySection({ form, user, submitted, className }) {
           </div>
         ))}
       </div>
-      <div className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-white">
+      {/* <div className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-white">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4" />
           <p className="text-sm font-extrabold">
@@ -323,10 +356,11 @@ export function SummarySection({ form, user, submitted, className }) {
           You're taking another step toward understanding yourself and building
           better routines.
         </p>
-      </div>
+      </div> */}
       <div className="flex items-center justify-center gap-2 text-[10px] font-semibold text-slate-400">
         <LockKeyhole className="size-3.5" />
-        Your future check-in data will remain private and secure.
+        Your check-in is stored in your authenticated account and used to
+        calculate your analytics.
       </div>
     </CheckInCard>
   );

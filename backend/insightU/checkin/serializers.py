@@ -1,7 +1,9 @@
-from django.utils import timezone
 from rest_framework import serializers
+from django.db import transaction
 
 from .models import DailyCheckIn
+from profiles.utils import user_local_date
+from habits.models import Habit, HabitCompletion
 
 
 DISTRACTION_CHOICES = (
@@ -27,6 +29,10 @@ HABIT_CHOICES = (
 
 
 class DailyCheckInSerializer(serializers.ModelSerializer):
+    completed_habit_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Habit.objects.none(), write_only=True, required=False
+    )
+    habit_completion_details = serializers.SerializerMethodField()
     distractions = serializers.ListField(
         child=serializers.ChoiceField(choices=DISTRACTION_CHOICES),
         allow_empty=False,
@@ -37,11 +43,18 @@ class DailyCheckInSerializer(serializers.ModelSerializer):
         required=False,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            self.fields["completed_habit_ids"].child_relation.queryset = Habit.objects.filter(user=request.user, active=True)
+
     class Meta:
         model = DailyCheckIn
         fields = (
             "id",
             "check_in_date",
+            "study_category",
             "study_hours",
             "planned_study_status",
             "focus_level",
@@ -50,12 +63,14 @@ class DailyCheckInSerializer(serializers.ModelSerializer):
             "distractions",
             "distraction_time",
             "habits_completed",
+            "completed_habit_ids",
+            "habit_completion_details",
             "reflection_went_well",
             "reflection_improve_tomorrow",
             "created_at",
             "updated_at",
         )
-        read_only_fields = ("id", "check_in_date", "created_at", "updated_at")
+        read_only_fields = ("id", "check_in_date", "habit_completion_details", "created_at", "updated_at")
 
     def validate_distractions(self, values):
         if len(values) != len(set(values)):
@@ -88,7 +103,7 @@ class DailyCheckInSerializer(serializers.ModelSerializer):
         if instance is None and request and request.user.is_authenticated:
             exists = DailyCheckIn.objects.filter(
                 user=request.user,
-                check_in_date=timezone.localdate(),
+                check_in_date=user_local_date(request.user),
             ).exists()
             if exists:
                 raise serializers.ValidationError(
@@ -96,3 +111,40 @@ class DailyCheckInSerializer(serializers.ModelSerializer):
                 )
 
         return attrs
+
+
+    def get_habit_completion_details(self, instance):
+        return [
+            {"habit_id": item.habit_id, "name": item.habit.name, "code": item.habit.code, "completed": item.completed}
+            for item in instance.habit_completions.select_related("habit").all()
+        ]
+
+    def _sync_habits(self, instance, selected_habits):
+        if selected_habits is None:
+            legacy = instance.habits_completed or []
+            selected_habits = list(Habit.objects.filter(user=instance.user, active=True, code__in=legacy))
+        selected_ids = {habit.pk for habit in selected_habits}
+        due = list(Habit.objects.filter(user=instance.user, active=True))
+        due = [habit for habit in due if instance.check_in_date.isoweekday() in habit.schedule_weekdays or habit.pk in selected_ids]
+        for habit in due:
+            HabitCompletion.objects.update_or_create(
+                habit=habit, date=instance.check_in_date,
+                defaults={"user": instance.user, "completed": habit.pk in selected_ids, "source": HabitCompletion.Source.CHECKIN, "check_in": instance},
+            )
+        instance.habits_completed = [habit.code for habit in selected_habits]
+        instance.save(update_fields=["habits_completed", "updated_at"])
+
+    @transaction.atomic
+    def create(self, validated_data):
+        selected = validated_data.pop("completed_habit_ids", None)
+        instance = super().create(validated_data)
+        self._sync_habits(instance, selected)
+        return instance
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        selected = validated_data.pop("completed_habit_ids", None)
+        instance = super().update(instance, validated_data)
+        if selected is not None:
+            self._sync_habits(instance, selected)
+        return instance

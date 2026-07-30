@@ -43,10 +43,24 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    profile_complete = serializers.SerializerMethodField()
+    timezone = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ("id", "username", "email", "first_name", "last_name", "date_joined")
+        fields = ("id", "username", "email", "first_name", "last_name", "date_joined", "profile_complete", "timezone")
         read_only_fields = fields
+
+    def _profile(self, obj):
+        from profiles.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=obj)
+        return profile
+
+    def get_profile_complete(self, obj):
+        return self._profile(obj).onboarding_completed
+
+    def get_timezone(self, obj):
+        return self._profile(obj).timezone
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -56,6 +70,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         data["user"] = UserSerializer(self.user).data
+        print(data)
         return data
 
 

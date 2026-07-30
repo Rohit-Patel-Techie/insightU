@@ -1,7 +1,6 @@
 from datetime import date
 
 from django.db import IntegrityError, transaction
-from django.utils import timezone
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -10,6 +9,7 @@ from rest_framework.response import Response
 
 from .models import DailyCheckIn
 from .serializers import DailyCheckInSerializer
+from profiles.utils import user_local_date
 
 
 class DailyCheckInViewSet(
@@ -53,7 +53,7 @@ class DailyCheckInViewSet(
     def perform_create(self, serializer):
         try:
             with transaction.atomic():
-                serializer.save(user=self.request.user, check_in_date=timezone.localdate())
+                serializer.save(user=self.request.user, check_in_date=user_local_date(self.request.user))
         except IntegrityError as exc:
             raise ValidationError(
                 {"detail": "You have already submitted today's check-in."}
@@ -61,7 +61,7 @@ class DailyCheckInViewSet(
 
     @action(detail=False, methods=("get",), url_path="today")
     def today(self, request):
-        check_in = self.get_queryset().filter(check_in_date=timezone.localdate()).first()
+        check_in = self.get_queryset().filter(check_in_date=user_local_date(request.user)).first()
         if check_in is None:
             return Response(
                 {"detail": "No check-in has been submitted today."},

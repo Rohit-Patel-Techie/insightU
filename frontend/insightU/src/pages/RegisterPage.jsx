@@ -22,8 +22,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+
 export default function RegisterPage() {
   const { register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formError, setFormError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,13 +35,40 @@ export default function RegisterPage() {
     defaultValues: { username: "", email: "", password: "", password2: "" },
   });
 
+  // const onSubmit = async (values) => {
+  //   setFormError(null);
+  //   setIsSubmitting(true);
+  //   try {
+  //     await register(values);
+  //     toast.success("Account created — you can now sign in.");
+  //     navigate("/login", { replace: true });
+  //   } catch (error) {
+  //     const message = applyApiErrorsToForm(error, form.setError, [
+  //       "username",
+  //       "email",
+  //       "password",
+  //       "password2",
+  //     ]);
+  //     if (message) setFormError(message);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
   const onSubmit = async (values) => {
     setFormError(null);
     setIsSubmitting(true);
     try {
+      //Create the account
       await register(values);
-      toast.success("Account created — you can now sign in.");
-      navigate("/login", { replace: true });
+
+      //Immediately log them in using the credentials they just typed
+      await login({
+        username: values.username,
+        password: values.password,
+      });
+
+      toast.success("Account created successfully! ✅");
+      navigate("/dashboard", { replace: true });
     } catch (error) {
       const message = applyApiErrorsToForm(error, form.setError, [
         "username",

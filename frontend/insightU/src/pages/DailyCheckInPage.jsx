@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   ArrowLeft,
@@ -28,10 +30,14 @@ import { buildCheckInPayload, useDailyCheckIn } from "@/hooks/useDailyCheckIn";
 import {
   createDailyCheckIn,
   getCheckInErrorMessage,
+  getTodayCheckIn,
+  updateDailyCheckIn,
 } from "@/services/checkin-api";
+import { listHabits } from "@/services/habits-api";
 
 function firstIncompleteStep(form) {
-  if (!form.studyCompletion || !form.focusLevel) return 1;
+  if (!form.studyCategory || !form.studyCompletion || !form.focusLevel)
+    return 1;
   if (!form.mood || !form.dayType) return 2;
   if (form.distractions.length === 0) return 3;
   if (!form.distractions.includes("nothing") && !form.distractionTime) return 3;
@@ -39,10 +45,12 @@ function firstIncompleteStep(form) {
 }
 
 export default function DailyCheckInPage({ user }) {
-  const checkIn = useDailyCheckIn();
+  const userTimezone = user?.timezone || "UTC";
+  const checkIn = useDailyCheckIn(userTimezone);
   const {
     form,
     errors,
+    loadRecord,
     setField,
     toggleListValue,
     validateStep,
@@ -54,12 +62,83 @@ export default function DailyCheckInPage({ user }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [savedCheckIn, setSavedCheckIn] = useState(null);
+  const [editingExisting, setEditingExisting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [activeHabits, setActiveHabits] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const habitsResponse = await listHabits({ active: true });
+        if (!active) return;
+        setActiveHabits(
+          Array.isArray(habitsResponse)
+            ? habitsResponse
+            : habitsResponse.results || [],
+        );
+        try {
+          const existing = await getTodayCheckIn();
+          if (!active) return;
+          loadRecord(existing);
+          setSavedCheckIn(existing);
+          setSubmitted(true);
+          setCurrentStep(6);
+          removeDraft();
+        } catch (error) {
+          if (error?.response?.status !== 404 && active)
+            setSubmitError(getCheckInErrorMessage(error));
+        }
+      } catch (error) {
+        if (active) setSubmitError(getCheckInErrorMessage(error));
+      } finally {
+        if (active) setInitialLoading(false);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const availableHabitOptions = useMemo(() => {
+    const key = (() => {
+      try {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: userTimezone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).formatToParts(new Date());
+        const v = Object.fromEntries(
+          parts.map((part) => [part.type, part.value]),
+        );
+        return `${v.year}-${v.month}-${v.day}`;
+      } catch {
+        return new Date().toISOString().slice(0, 10);
+      }
+    })();
+    const [year, month, day] = key.split("-").map(Number);
+    const weekday = ((new Date(year, month - 1, day).getDay() + 6) % 7) + 1;
+    return activeHabits
+      .filter(
+        (habit) =>
+          !habit.schedule_weekdays?.length ||
+          habit.schedule_weekdays.includes(weekday),
+      )
+      .map((habit) => ({
+        value: habit.id,
+        label: habit.name,
+        emoji: habit.icon || "✓",
+      }));
+  }, [activeHabits, userTimezone]);
 
   const completedSteps = useMemo(() => {
     const completed = new Set();
-    if (form.studyCompletion && form.focusLevel) completed.add(1);
+    if (form.studyCategory && form.studyCompletion && form.focusLevel)
+      completed.add(1);
     if (form.mood && form.dayType) completed.add(2);
     if (
       form.distractions.length &&
@@ -83,9 +162,11 @@ export default function DailyCheckInPage({ user }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const navigate = useNavigate();
   const submitCheckIn = async (event) => {
     event?.preventDefault();
     setSubmitError("");
+
     if (!validateAll()) {
       setCurrentStep(firstIncompleteStep(form));
       return;
@@ -93,12 +174,22 @@ export default function DailyCheckInPage({ user }) {
 
     setIsSubmitting(true);
     try {
-      const checkInRecord = await createDailyCheckIn(buildCheckInPayload(form));
+      const payload = buildCheckInPayload(form);
+      const checkInRecord = savedCheckIn?.id
+        ? await updateDailyCheckIn(savedCheckIn.id, payload)
+        : await createDailyCheckIn(payload);
+
       setSavedCheckIn(checkInRecord);
       setSubmitted(true);
+      setEditingExisting(false);
       removeDraft();
-      setCurrentStep(6);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      window.dispatchEvent(
+        new CustomEvent("insightu:checkin-saved", { detail: checkInRecord }),
+      );
+
+      // 3. Redirect to dashboard route
+      navigate("/dashboard");
     } catch (error) {
       setSubmitError(getCheckInErrorMessage(error));
       setCurrentStep(6);
@@ -107,7 +198,51 @@ export default function DailyCheckInPage({ user }) {
     }
   };
 
-  const sectionProps = { form, errors, setField, toggleListValue };
+  // const submitCheckIn = async (event) => {
+  //   event?.preventDefault();
+  //   setSubmitError("");
+  //   if (!validateAll()) {
+  //     setCurrentStep(firstIncompleteStep(form));
+  //     return;
+  //   }
+
+  //   setIsSubmitting(true);
+  //   try {
+  //     const payload = buildCheckInPayload(form);
+  //     const checkInRecord = savedCheckIn?.id
+  //       ? await updateDailyCheckIn(savedCheckIn.id, payload)
+  //       : await createDailyCheckIn(payload);
+  //     setSavedCheckIn(checkInRecord);
+  //     setSubmitted(true);
+  //     setEditingExisting(false);
+  //     removeDraft();
+  //     setCurrentStep(6);
+  //     window.dispatchEvent(
+  //       new CustomEvent("insightu:checkin-saved", { detail: checkInRecord }),
+  //     );
+  //     window.scrollTo({ top: 0, behavior: "smooth" });
+  //   } catch (error) {
+  //     setSubmitError(getCheckInErrorMessage(error));
+  //     setCurrentStep(6);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  const editExisting = () => {
+    setSubmitted(false);
+    setEditingExisting(true);
+    setSubmitError("");
+    setCurrentStep(1);
+  };
+
+  const sectionProps = {
+    form,
+    errors,
+    setField,
+    toggleListValue,
+    availableHabits: availableHabitOptions,
+  };
   const mobileSections = [
     <StudyProgressSection key="study" {...sectionProps} />,
     <MoodEnergySection key="mood" {...sectionProps} />,
@@ -115,6 +250,21 @@ export default function DailyCheckInPage({ user }) {
     <HabitsSection key="habits" {...sectionProps} />,
     <ReflectionSection key="reflection" {...sectionProps} />,
   ];
+
+  if (initialLoading) {
+    return (
+      <DashboardShell
+        user={user}
+        showMobileNav={false}
+        header={(props) => <CheckInHeader {...props} />}
+      >
+        <div className="grid min-h-72 place-items-center">
+          <LoaderCircle className="size-7 animate-spin text-indigo-500" />
+          <span className="sr-only">Loading today's check-in</span>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell
@@ -142,6 +292,7 @@ export default function DailyCheckInPage({ user }) {
                   form={form}
                   user={dashboardUser}
                   submitted={submitted}
+                  availableHabits={availableHabitOptions}
                 />
               )}
               <div className="flex items-center justify-between gap-3 px-1">
@@ -177,6 +328,7 @@ export default function DailyCheckInPage({ user }) {
                     form={form}
                     user={dashboardUser}
                     submitted={submitted}
+                    availableHabits={availableHabitOptions}
                   />
                 )}
 
@@ -229,7 +381,7 @@ export default function DailyCheckInPage({ user }) {
                           <CheckCircle2 className="size-4" />
                         )}
                         {submitted
-                          ? "Saved to Database"
+                          ? "Submit"
                           : isSubmitting
                             ? "Saving..."
                             : "Submit Check-in"}
@@ -282,22 +434,31 @@ export default function DailyCheckInPage({ user }) {
                 <Button type="button" className="h-11 flex-1" onClick={goNext}>
                   Continue <ArrowRight className="size-4" />
                 </Button>
+              ) : submitted ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 flex-1"
+                  onClick={editExisting}
+                >
+                  Edit today&apos;s check-in
+                </Button>
               ) : (
                 <Button
                   type="button"
                   className="h-11 flex-1"
                   onClick={submitCheckIn}
-                  disabled={submitted || isSubmitting}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <LoaderCircle className="size-4 animate-spin" />
                   ) : (
                     <CheckCircle2 className="size-4" />
                   )}
-                  {submitted
-                    ? "Saved"
-                    : isSubmitting
-                      ? "Saving..."
+                  {isSubmitting
+                    ? "Saving..."
+                    : editingExisting
+                      ? "Save changes"
                       : "Submit Check-in"}
                 </Button>
               )}

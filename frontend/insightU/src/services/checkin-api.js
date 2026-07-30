@@ -1,7 +1,6 @@
 import { api } from "@/lib/api";
 
-const API_ROOT = import.meta.env.VITE_API_URL
-const CHECKINS_URL = `${API_ROOT}/checkins/`
+const CHECKINS_URL = "/checkins/"
 
 export async function createDailyCheckIn(payload) {
   const response = await api.post(CHECKINS_URL, payload)
@@ -41,7 +40,7 @@ function firstError(value) {
 }
 
 export function getCheckInErrorMessage(error) {
-  if (!error.response) return "Unable to reach the server. Check that Django is running and try again."
+  if (!error.response) return "Unable to reach the server."
   if (error.response.status === 401) return "Your session has expired. Please sign in again."
   return firstError(error.response.data) || "The check-in could not be saved. Please try again."
 }

@@ -15,7 +15,7 @@ export const registerSchema = z
     password2: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.password2, {
-    message: "Passwords don't match",
+    message: "Passwords don'tF match",
     path: ["password2"],
   })
 

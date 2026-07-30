@@ -128,3 +128,29 @@ class DailyCheckInAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         check_in.refresh_from_db()
         self.assertEqual(check_in.mood, "excellent")
+
+
+class CheckInCanonicalHabitTests(APITestCase):
+    def setUp(self):
+        user_model = get_user_model()
+        self.user = user_model.objects.create_user(username="canonical-user", password="password")
+        self.other = user_model.objects.create_user(username="canonical-other", password="password")
+        self.client.force_authenticate(self.user)
+        self.url = reverse("checkin:checkin-list")
+        from habits.models import Habit
+        self.completed = Habit.objects.create(user=self.user, name="Study", code="study", category="academics", schedule_weekdays=[1,2,3,4,5,6,7])
+        self.missed = Habit.objects.create(user=self.user, name="Water", code="drink_water", category="other", schedule_weekdays=[1,2,3,4,5,6,7])
+        self.other_habit = Habit.objects.create(user=self.other, name="Secret", code="secret", category="other", schedule_weekdays=[1,2,3,4,5,6,7])
+        self.payload = {"study_category":"academics","study_hours":2,"planned_study_status":"complete","focus_level":"deep_focus","mood":"good","day_type":"productive","distractions":["nothing"],"distraction_time":"","completed_habit_ids":[self.completed.id]}
+
+    def test_checkin_creates_completed_and_missed_due_habit_records(self):
+        response = self.client.post(self.url, self.payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        from habits.models import HabitCompletion
+        self.assertTrue(HabitCompletion.objects.get(habit=self.completed).completed)
+        self.assertFalse(HabitCompletion.objects.get(habit=self.missed).completed)
+        self.assertEqual(response.data["habits_completed"], ["study"])
+
+    def test_other_users_habit_cannot_be_submitted(self):
+        payload = {**self.payload, "completed_habit_ids": [self.other_habit.id]}
+        self.assertEqual(self.client.post(self.url, payload, format="json").status_code, status.HTTP_400_BAD_REQUEST)

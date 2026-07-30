@@ -7,6 +7,16 @@ export const checkInSteps = [
   { id: 6, title: "Summary", shortTitle: "Summary", emoji: "🎉" },
 ]
 
+export const studyCategoryOptions = [
+  { value: "programming", label: "Programming", emoji: "💻" },
+  { value: "academics", label: "Academics", emoji: "🎓" },
+  { value: "exam_prep", label: "Exam Prep", emoji: "📝" },
+  { value: "project", label: "Project", emoji: "🛠️" },
+  { value: "career", label: "Career", emoji: "🚀" },
+  { value: "reading", label: "Reading", emoji: "📖" },
+  { value: "other", label: "Other", emoji: "✨" },
+]
+
 export const studyCompletionOptions = [
   { value: "complete", label: "Yes, completely", emoji: "✅", tone: "emerald" },
   { value: "partial", label: "Partially", emoji: "📖", tone: "amber" },

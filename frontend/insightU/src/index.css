@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -86,14 +87,12 @@
 
 .dashboard-grid {
   box-sizing: border-box;
-  font-family: "Aptos", "Segoe UI Variable", sans-serif;
+  font-family: "Manrope", "Segoe UI Variable", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(99, 102, 241, 0.08) 1px,
-    transparent 0
-  );
+  background-image: radial-gradient(circle at 1px 1px,
+      rgba(99, 102, 241, 0.08) 1px,
+      transparent 0);
   background-size: 24px 24px;
 }
 
@@ -115,7 +114,12 @@
 }
 
 .font-display {
-  font-family: "Aptos Display", "Segoe UI Variable Display", sans-serif;
+  font-family: "Sora", "Segoe UI Variable Display", sans-serif;
+}
+
+.font-metric {
+  font-family: "DM Mono", "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .scrollbar-none {
@@ -127,11 +131,9 @@
 }
 
 .dark .dashboard-grid {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(255, 255, 255, 0.035) 1px,
-    transparent 0
-  );
+  background-image: radial-gradient(circle at 1px 1px,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 0);
 }
 
 .dashboard-enter {
@@ -163,6 +165,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .dashboard-grid,
   .dashboard-grid *,
   .dashboard-grid *::before,

@@ -1,18 +1,18 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import { toast } from "sonner"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
 
-import { useAuth } from "@/context/AuthContext"
-import { loginSchema } from "@/lib/validation"
-import { applyApiErrorsToForm } from "@/lib/api-errors"
-import { AuthLayout } from "@/components/AuthLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useAuth } from "@/context/AuthContext";
+import { loginSchema } from "@/lib/validation";
+import { applyApiErrorsToForm } from "@/lib/api-errors";
+import { AuthLayout } from "@/components/AuthLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -20,39 +20,39 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 
 export default function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [formError, setFormError] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [formError, setFormError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: { username: "", password: "" },
-  })
+  });
 
-  const redirectTo = location.state?.from?.pathname || "/dashboard"
+  const redirectTo = location.state?.from?.pathname || "/dashboard";
 
   const onSubmit = async (values) => {
-    setFormError(null)
-    setIsSubmitting(true)
+    setFormError(null);
+    setIsSubmitting(true);
     try {
-      await login(values)
-      toast.success("Welcome back!")
-      navigate(redirectTo, { replace: true })
+      await login(values);
+      toast.success("Welcome back!");
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       const message = applyApiErrorsToForm(error, form.setError, [
         "username",
         "password",
-      ])
-      if (message) setFormError(message)
+      ]);
+      if (message) setFormError(message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <AuthLayout
@@ -68,7 +68,10 @@ export default function LoginPage() {
           </Link>
           <div className="mt-2 text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="font-medium text-foreground hover:underline">
+            <Link
+              to="/register"
+              className="font-medium text-foreground hover:underline"
+            >
               Sign up
             </Link>
           </div>
@@ -140,5 +143,5 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </AuthLayout>
-  )
+  );
 }
