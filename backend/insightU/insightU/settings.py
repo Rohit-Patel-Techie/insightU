@@ -84,6 +84,8 @@ WSGI_APPLICATION = 'insightU.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# print("\n",DATABASE_URL)
 if DATABASE_URL:
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True)}
 else:
