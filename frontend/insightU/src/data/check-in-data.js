@@ -24,9 +24,9 @@ export const studyCompletionOptions = [
 ]
 
 export const focusOptions = [
-  { value: "deep_focus", label: "Deep Focus", emoji: "🎯" },
+  { value: "deep_focus", label: "Fully Focused", emoji: "🎯" },
   { value: "mostly_focused", label: "Mostly Focused", emoji: "🙂" },
-  { value: "average", label: "Average", emoji: "😐" },
+  { value: "average", label: "Somewhat Focused", emoji: "😐" },
   { value: "frequently_distracted", label: "Often Distracted", emoji: "😕" },
   { value: "could_not_focus", label: "Couldn't Focus", emoji: "😵" },
 ]

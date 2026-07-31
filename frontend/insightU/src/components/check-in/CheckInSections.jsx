@@ -31,7 +31,7 @@ export function StudyProgressSection({ form, errors, setField, className }) {
       emoji="📚"
       className={className}
     >
-      <Question label="What was the main category of your study?">
+      <Question label="What did you study today?">
         <OptionGrid
           options={studyCategoryOptions}
           value={form.studyCategory}
@@ -70,7 +70,7 @@ export function StudyProgressSection({ form, errors, setField, className }) {
           </div>
         </div>
       </Question>
-      <Question label="Did you complete your planned study today?">
+      <Question label="Did you complete your study plan?">
         <OptionGrid
           options={studyCompletionOptions}
           value={form.studyCompletion}
@@ -80,7 +80,7 @@ export function StudyProgressSection({ form, errors, setField, className }) {
         />
         <FieldError message={errors.studyCompletion} />
       </Question>
-      <Question label="How focused were you today?">
+      <Question label="How was your focus today?">
         <FocusScale
           options={focusOptions}
           value={form.focusLevel}
@@ -111,7 +111,7 @@ export function MoodEnergySection({ form, errors, setField, className }) {
         />
         <FieldError message={errors.mood} />
       </Question>
-      <Question label="What best describes your day?">
+      <Question label="How was your day?">
         <OptionGrid
           options={dayTypeOptions}
           value={form.dayType}
@@ -137,13 +137,13 @@ export function DistractionsSection({
     <CheckInCard
       step={3}
       title="Distractions"
-      helper="Identify what pulled your attention away."
+      helper="What affected your focus?"
       emoji="📱"
       className={className}
     >
       <Question
-        label="What distracted you the most today?"
-        hint="Select all that apply. Choosing Nothing clears the others."
+        label="Things that distracted you"
+        hint="Choose anything that affected your focus."
       >
         <OptionGrid
           options={distractionOptions}
@@ -156,7 +156,7 @@ export function DistractionsSection({
         <FieldError message={errors.distractions} />
       </Question>
       <Question
-        label="When were you most distracted?"
+        label="When do you lose focus most?"
         hint={
           selectedNothing ? "Not needed when Nothing is selected." : undefined
         }
@@ -188,7 +188,7 @@ export function HabitsSection({
     <CheckInCard
       step={4}
       title="Habits"
-      helper="Select the habits you followed today."
+      helper="What habits did you complete today?"
       emoji="🌱"
       className={className}
     >
@@ -207,7 +207,7 @@ export function HabitsSection({
       <div className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3 dark:border-emerald-400/10 dark:bg-emerald-400/[0.07]">
         <span className="text-xl">🌿</span>
         <p className="text-xs font-semibold leading-5 text-emerald-800 dark:text-emerald-300">
-          Keep going! Small, consistent steps create meaningful change.
+          Keep going! Small steps matter.
         </p>
       </div>
     </CheckInCard>
