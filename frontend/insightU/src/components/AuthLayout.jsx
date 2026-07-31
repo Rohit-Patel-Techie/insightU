@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 export function AuthLayout({ title, description, children, footer }) {
   return (
@@ -21,5 +21,5 @@ export function AuthLayout({ title, description, children, footer }) {
         {footer && <div className="mt-6 text-center text-sm">{footer}</div>}
       </motion.div>
     </div>
-  )
+  );
 }

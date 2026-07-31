@@ -37,7 +37,7 @@ function initialTheme() {
   } catch {
     /* Use the responsive default when browser storage is blocked. */
   }
-  return window.innerWidth >= 1024 ? "dark" : "light";
+  return "light";
 }
 
 export function DashboardShell({

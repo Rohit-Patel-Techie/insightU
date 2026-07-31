@@ -39,7 +39,7 @@ function OnboardingRoute() {
     user?.profile_complete &&
     !new URLSearchParams(location.search).has("edit")
   )
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/dashboard" replace />;
   return <ProfilePage />;
 }
 function UserPage({ component: Component }) {

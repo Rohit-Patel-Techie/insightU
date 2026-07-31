@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link} from "react-router-dom";
 import {
   AlertCircle,
   BatteryLow,
@@ -332,6 +333,21 @@ export default function ProfilePage() {
     );
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:py-12">
+      <Link
+        to="/"
+        className="flex items-center gap-3 mb-6 hover:opacity-90 transition-opacity"
+      >
+        <div className="flex items-center justify-center size-12 rounded-xl bg-white shadow-sm border border-gray-100 p-1.5">
+          <img
+            src="logo.webp"
+            alt="insightU-logo"
+            className="object-contain w-full h-full"
+          />
+        </div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">
+          InsightU
+        </h1>
+      </Link>
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
           <div className="flex items-center justify-between text-sm">

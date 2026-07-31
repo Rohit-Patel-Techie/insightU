@@ -7,19 +7,28 @@ const Home = () => {
 
   // Desktop (Horizontal) images (3 images)
   const desktopImages = [
-    "https://i.postimg.cc/NMdL77x0/insight-U-dashboard.png",
-    "https://i.postimg.cc/Y0s1Cw4Y/desktop-dashboard-02.webp",
-    "https://i.postimg.cc/kG4QC55f/desktop-dashboard-03.webp",
-    "https://i.postimg.cc/kGpxgdV8/desktop-dashboard-04.webp",
+    "insightU-dashboard_01.webp",
+    "desktop_dashboard_02.webp",
+    "desktop_dashboard_03.webp",
+    "desktop_dashboard_04.webp",
+    // "https://i.postimg.cc/NMdL77x0/insight-U-dashboard.png",
+    // "https://i.postimg.cc/Y0s1Cw4Y/desktop-dashboard-02.webp",
+    // "https://i.postimg.cc/kG4QC55f/desktop-dashboard-03.webp",
+    // "https://i.postimg.cc/kGpxgdV8/desktop-dashboard-04.webp",
   ];
 
   // Mobile (Vertical) images (5 images)
   const mobileImages = [
-    "https://i.postimg.cc/D0bg9Z0k/mobile-dasbhoard-01.webp",
-    "https://i.postimg.cc/GtsQW2t1/mobile-dasbhoard-02.webp",
-    "https://i.postimg.cc/kGtc04Gr/mobile-dasbhoard-03.webp",
-    "https://i.postimg.cc/kGtc04GP/mobile-dasbhoard-04.webp",
-    "https://i.postimg.cc/Xqy8RJqW/mobile-dasbhoard-05.webp",
+    "mobile_dasbhoard_01.webp",
+    "mobile_dasbhoard_02.webp",
+    "mobile_dasbhoard_03.webp",
+    "mobile_dasbhoard_04.webp",
+    "mobile_dasbhoard_05.webp",
+    // "https://i.postimg.cc/D0bg9Z0k/mobile-dasbhoard-01.webp",
+    // "https://i.postimg.cc/GtsQW2t1/mobile-dasbhoard-02.webp",
+    // "https://i.postimg.cc/kGtc04Gr/mobile-dasbhoard-03.webp",
+    // "https://i.postimg.cc/kGtc04GP/mobile-dasbhoard-04.webp",
+    // "https://i.postimg.cc/Xqy8RJqW/mobile-dasbhoard-05.webp",
   ];
 
   useEffect(() => {
@@ -45,9 +54,9 @@ const Home = () => {
       {/* Navigation Bar */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-6 mx-auto max-w-[1440px] ">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center size-10 md:size-12 rounded-xl bg-white shadow-sm border border-gray-100 p-1.5">
+          <div className="flex items-center justify-center size-12 md:size-13 rounded-xl bg-white shadow-sm border border-gray-100 p-1.5">
             <img
-              src="https://i.postimg.cc/C1Y20bkT/logo.webp"
+              src="logo.webp"
               alt="insightU-logo"
               className="object-contain w-full h-full"
             />
