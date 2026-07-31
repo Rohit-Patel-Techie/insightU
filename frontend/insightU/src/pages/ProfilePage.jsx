@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   AlertCircle,
   BatteryLow,
@@ -419,7 +419,7 @@ export default function ProfilePage() {
             <div>
               <h2 className="text-2xl font-extrabold">Academic profile</h2>
               <p className="mt-2 text-slate-500">
-                Used only to personalize goals and context.
+                Used to personalize your experience.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {["B.Sc", "B.Com", "BA", "Other"].map((item) => (
@@ -449,9 +449,9 @@ export default function ProfilePage() {
           )}
           {step === 3 && (
             <div>
-              <h2 className="text-2xl font-extrabold">Study Baseline</h2>
+              <h2 className="text-2xl font-extrabold">Study Plan</h2>
               <p className="mt-2 text-slate-500">
-                Expected hours apply only on your planned weekdays.
+                These hours apply only to your study days.
               </p>
 
               <div>
@@ -474,7 +474,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <label className="mt-7 block text-sm font-semibold">
-                Expected hours on a planned day:{" "}
+                Study hours per day:{" "}
                 <b className="text-indigo-600">{form.study_hours}</b>
                 <input
                   type="range"
@@ -488,9 +488,7 @@ export default function ProfilePage() {
                   className="mt-3 w-full accent-indigo-600"
                 />
               </label>
-              <p className="mt-6 text-sm font-semibold">
-                Planned study weekdays
-              </p>
+              <p className="mt-6 text-sm font-semibold">Choose Study Days</p>
               <div className="mt-2 grid grid-cols-7 gap-2">
                 {WEEKDAYS.map((day) => (
                   <button
@@ -508,10 +506,10 @@ export default function ProfilePage() {
           )}
           {step === 4 && (
             <div>
-              <h2 className="text-2xl font-extrabold">Current challenges</h2>
-              {/* <p className="mt-2 text-slate-500">
-                Context only—never used for diagnosis.
-              </p> */}
+              <h2 className="text-2xl font-extrabold">Your Challenges</h2>
+              <p className="mt-2 text-slate-500">
+                Select what you want to work on.
+              </p>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {CHALLENGES.map((item) => (
                   <SelectableCard
@@ -545,10 +543,10 @@ export default function ProfilePage() {
           )}
           {step === 6 && (
             <div>
-              <h2 className="text-2xl font-extrabold">Goals and motivation</h2>
-              <p className="mt-2 text-slate-500">
-                Future Goals You want to achieve. Also Edited after setup.
-              </p>
+              <h2 className="text-2xl font-extrabold">
+                Goals and Inspirations
+              </h2>
+              <p className="mt-2 text-slate-500">You can edit them anytime.</p>
               <div className="mt-6 space-y-3">
                 {form.goals.map((goal, index) => (
                   <div
@@ -561,7 +559,7 @@ export default function ProfilePage() {
                         onChange={(event) =>
                           updateGoal(index, "title", event.target.value)
                         }
-                        placeholder="Goal title"
+                        placeholder="Goals Title : I want to prepare for exams"
                       />
                       <Button
                         variant="ghost"
@@ -623,13 +621,14 @@ export default function ProfilePage() {
                 </Button>
               </div>
               <label className="mt-6 block text-sm font-semibold">
-                What motivates you?
+                What inspires you?
                 <textarea
                   maxLength={200}
                   rows={3}
                   value={form.motivation}
                   onChange={(event) => set("motivation", event.target.value)}
                   className="mt-2 w-full rounded-xl border border-slate-200 p-3"
+                  placeholder="I am inspired by learning new things, meeting new people etc."
                 />
               </label>
             </div>

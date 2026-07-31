@@ -102,7 +102,7 @@ function JournalForm({ value, onChange, errors, consentGranted }) {
             onChange={(event) =>
               onChange({ ...value, title: event.target.value })
             }
-            placeholder="What stood out today?"
+            placeholder="What was the best part of your day?"
             maxLength={180}
           />
         )}
@@ -366,7 +366,7 @@ export default function JournalPage({ user }) {
       header={(props) => (
         <BehaviorHeader
           {...props}
-          title="Private journal"
+          title="Private Daily Reflection"
           description="Capture reflections and learning notes visible only in your account."
           action={
             <Button
@@ -430,7 +430,7 @@ export default function JournalPage({ user }) {
           {consent.granted && (
             <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-white/10">
               <span>
-                Journal AI consent is active. Each entry can still opt out.
+                Daily Reflection AI consent is active. Each entry can still opt out.
               </span>
               <Button
                 variant="ghost"
@@ -597,7 +597,7 @@ export default function JournalPage({ user }) {
         open={formOpen}
         onClose={() => !saving && setFormOpen(false)}
         title={editing ? "Edit journal entry" : "New journal entry"}
-        description="Only you can access entries returned by your account API."
+        description="Only you can access entries returned by your account."
         size="max-w-2xl"
         footer={
           <>
