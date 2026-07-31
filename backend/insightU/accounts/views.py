@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, permissions, status
@@ -105,11 +107,22 @@ class PasswordResetRequestView(APIView):
             # No frontend yet: print the raw values so you can test the confirm endpoint directly.
             reset_link = f"uid={uid}&token={token}"
 
+        context = {
+            "reset_link": reset_link,
+            "username": user.username
+        }
+
+        html_message = render_to_string("emails/password_reset.html", context)
+        plain_message = strip_tags(html_message)
+
+        
         send_mail(
-            subject="Reset your password",
-            message=f"Use this link to reset your password: {reset_link}",
+            subject="insightU : Reset your password",
+            message=plain_message,
+            html_message=html_message,
             from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@example.com"),
             recipient_list=[email],
+            fail_silently=False,
         )
         return generic_response
 

@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "sonner";
 
 export default function ResetPasswordPage() {
   const { confirmPasswordReset } = useAuth();
@@ -38,6 +39,7 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
     try {
       await confirmPasswordReset({ uid, token, ...values });
+      toast.success("Password Reset successully ✅ , Now login!");
       navigate("/login", {
         replace: true,
         state: { resetSuccess: true },
