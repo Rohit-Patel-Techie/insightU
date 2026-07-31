@@ -373,9 +373,7 @@ export default function ProfilePage() {
               <h1 className="text-3xl font-extrabold tracking-tight">
                 Welcome to InsightU
               </h1>
-              <p className="mt-2 text-slate-500">
-                Set the Baseline used by your private analytics.
-              </p>
+              <p className="mt-2 text-slate-500">Set your starting point</p>
               <div className="mt-7 space-y-5">
                 <label className="block text-sm font-semibold">
                   What should we call you?
