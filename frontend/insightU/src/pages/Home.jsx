@@ -35,7 +35,7 @@ const Home = () => {
     // Increment the tick every 3 seconds
     const timer = setInterval(() => {
       setTick((t) => t + 1);
-    }, 3000);
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
