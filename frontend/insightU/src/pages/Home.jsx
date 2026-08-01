@@ -117,7 +117,7 @@ const Home = () => {
               to="/register"
               className="w-[17rem] px-8 py-4 text-base font-semibold text-center text-white transition-all transform rounded-full shadow-lg sm:w-auto bg-indigo-600 hover:-translate-y-1 hover:shadow-xl hover:bg-indigo-700"
             >
-              Build Better Habits Now
+              Know Yourself Better Daily
             </Link>
             {/* <button className="w-full px-8 py-4 text-base font-semibold transition-all rounded-full sm:w-auto text-indigo-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm">
               See How It Works
