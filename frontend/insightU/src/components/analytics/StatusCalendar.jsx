@@ -6,6 +6,7 @@ import {
   todayKey,
 } from "@/components/analytics/date-utils";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -134,6 +135,7 @@ export function StatusCalendar({
 }
 
 export function CheckInStatusBanner({ reported, isPlannedDay, dateLabel }) {
+  const navigate = useNavigate();
   if (reported) {
     return (
       <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 dark:bg-emerald-400/[0.07]">
@@ -145,9 +147,13 @@ export function CheckInStatusBanner({ reported, isPlannedDay, dateLabel }) {
     );
   }
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-white/[0.04]">
+    <div
+      onClick={() => navigate("/check-in")}
+      className="flex cursor-pointer items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5 dark:bg-white/[0.04]"
+    >
       <span className="size-4 shrink-0 rounded-full border-2 border-slate-300 dark:border-white/20" />
-      <p className="text-[12px] font-semibold text-orange-500 dark:text-orange-500">
+
+      <p className="text-[12px] font-semibold text-orange-500">
         {isPlannedDay === false
           ? `Rest day — no check-in expected for ${dateLabel}`
           : `No check-in yet for ${dateLabel}`}
