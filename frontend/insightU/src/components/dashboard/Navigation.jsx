@@ -24,7 +24,7 @@ const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: Gauge },
   { label: "Daily Check-in", path: "/check-in", icon: ClipboardCheck },
   { label: "Analytics", path: "/analytics", icon: BarChart3 },
-  { label: "Daily Reflection", path: "/journal", icon: BookOpenText },
+  { label: "Journals", path: "/journal", icon: BookOpenText },
   { label: "Habits", path: "/habits", icon: CalendarCheck2 },
   { label: "Goals", path: "/goals", icon: Goal },
   { label: "AI Reflection", path: "/reflection", icon: Bot },
@@ -37,7 +37,7 @@ const bottomItems = [
   { label: "Dashboard", path: "/dashboard", icon: Gauge },
   { label: "Check-in", path: "/check-in", icon: ClipboardCheck },
   { label: "Habits", path: "/habits", icon: CalendarCheck2 },
-  { label: "Daily Reflection", path: "/journal", icon: BookOpenText },
+  { label: "Journals", path: "/journal", icon: BookOpenText },
   { label: "Profile", path: "/profile", icon: CircleUserRound },
 ];
 
